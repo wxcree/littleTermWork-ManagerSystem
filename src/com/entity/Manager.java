@@ -210,6 +210,7 @@ public class Manager extends User {
                     break;
                 case 10:
                     isexit=true;
+                    break;
                 default:
                     System.out.println("输入错误！");
             }
