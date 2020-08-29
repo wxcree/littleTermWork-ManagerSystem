@@ -14,6 +14,9 @@ public class Factory {
                 case 1:
                     u=new Manager();
                     break;
+                case 2:
+                    u=new Storeman();
+                    break;
             }
         u.setId(id);
         u.setName(name);
