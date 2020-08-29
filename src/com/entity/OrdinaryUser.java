@@ -8,10 +8,9 @@ import java.util.List;
 import java.util.Scanner;
 
 public class OrdinaryUser extends User {
-    public void user_asset(int assetsid) throws SQLException {
-
+    public void looku_a() throws SQLException {
         /*
-       查看改用户的所有借用情况
+       查看该用户的所有借用情况
         */
         managerDAOImpl userDAO=new managerDAOImpl();
         User user = new OrdinaryUser();
@@ -25,12 +24,6 @@ public class OrdinaryUser extends User {
             System.out.print(asset.getId()+"\t");
             System.out.print(asset.getName()+"\t");
         }
-    }
-    public void looku_a() throws SQLException {
-        Scanner scanner=new Scanner(System.in);
-        System.out.println("请输入要查看的资产编号！");
-        int assetsid=scanner.nextInt();
-        user_asset(assetsid);
     }
 
     @Override
