@@ -28,7 +28,7 @@ public class managerDAOImpl implements UserDAO, MangeAsset {
 		 /*
        初始化接口类
         */
-		users=new ArrayList<User>();
+		users=new ArrayList<User>();//缓存
 		connection=ConnectionFactory.getConnection();
 	}
 	@Override
@@ -36,7 +36,8 @@ public class managerDAOImpl implements UserDAO, MangeAsset {
 		/*
 		获取所有的用户
 		 */
-		// TODO Auto-generated method stub
+		if(!users.isEmpty())
+			return users;
 		String query = "SELECT * FROM User";
         ResultSet rs = null;
 		Factory factory = new Factory();
@@ -111,6 +112,7 @@ public class managerDAOImpl implements UserDAO, MangeAsset {
 			String query = "UPDATE User SET User.password='"+user.getPassword()+"',User.usrname='"+user.getName()+"' WHERE id=" + user.getId();
 			try {
 				statement.executeUpdate(query);
+				users.clear();
 				return true;
 			}catch (Exception e){
 				e.printStackTrace();
@@ -123,6 +125,7 @@ public class managerDAOImpl implements UserDAO, MangeAsset {
 			String query = "UPDATE User SET password='"+user.getPassword()+"',User.name='"+user.getName()+"' WHERE username='" + user.getName()+"'";
 			try {
 				statement.executeUpdate(query);
+				users.clear();
 				return true;
 			} catch (Exception e){
 				e.printStackTrace();
@@ -148,6 +151,7 @@ public class managerDAOImpl implements UserDAO, MangeAsset {
 			String query = "DELETE FROM User WHERE id=" + user.getId();
 			try {
 				statement.executeUpdate(query);
+				users.clear();
 				return true;
 			} catch (Exception e){
 				e.printStackTrace();
@@ -160,6 +164,7 @@ public class managerDAOImpl implements UserDAO, MangeAsset {
 			String query = "DELETE FROM User WHERE username='" + user.getName()+"'";
 			try {
 				statement.executeUpdate(query);
+				users.clear();
 				return true;
 			} catch (Exception e){
 				e.printStackTrace();
@@ -177,46 +182,42 @@ public class managerDAOImpl implements UserDAO, MangeAsset {
 	}
 
 	public User login(String userName,String password) throws SQLException {
-		/*
-		实现登陆逻辑
-		 */
-		String query = "SELECT * FROM User WHERE username='" + userName+"'AND password='"+password+"'";
-        ResultSet rs = null;
-        Factory factory = new Factory();
-        User user = null;
-        try {
-            connection = ConnectionFactory.getConnection();
-            statement = connection.createStatement();
-            rs = statement.executeQuery(query);
-            int rowcount = 0;
-            if (rs.last()) {
-              rowcount = rs.getRow();
-              rs.beforeFirst(); // not rs.first() because the rs.next() below will move on, missing the first element
-            }
-            if(rowcount>0)
-            {
-            	while(rs.next()){
-					user = factory.createUser(
-							rs.getInt("id"),
-							rs.getInt("type"),
-							rs.getString("name"),
-							rs.getString("password")
-					);
-    			}
-            	return user;
-            }else{
-            	return null;
-            }
-            
-        } catch (Exception e){
+		String query = "SELECT * FROM User WHERE name='" + userName+"'AND password='"+password+"'";
+		//String query = "SELECT * FROM User ";
+		ResultSet rs = null;
+		Factory factory = new Factory();
+		User user = null;
+		try {
+			connection = ConnectionFactory.getConnection();
+			statement = connection.createStatement();
+			rs = statement.executeQuery(query);
+			int rowcount = 0;
+			rs.next();
+			if (rs.isLast()) {
+				rowcount = 1;
+			}
+			if(rowcount>0)
+			{
+				user = factory.createUser(
+						rs.getInt("id"),
+						rs.getInt("type"),
+						rs.getString("Name"),
+						rs.getString("Password")
+				);
+				return user;
+			}else{
+				return null;
+			}
+
+		} catch (Exception e){
 			e.printStackTrace();
 			return null;
 		}finally {
-            DbUtil.close(rs);
-            DbUtil.close(statement);
-            DbUtil.close(connection);
-        }
-		
+			DbUtil.close(rs);
+			DbUtil.close(statement);
+			DbUtil.close(connection);
+		}
+
 
 	}
 	@Override
@@ -230,7 +231,7 @@ public class managerDAOImpl implements UserDAO, MangeAsset {
             connection = ConnectionFactory.getConnection();
             statement = connection.createStatement();
             statement.executeUpdate(query);
-            
+			users.clear();
         } catch(Exception e)
         {
         	e.printStackTrace();
@@ -247,7 +248,7 @@ public class managerDAOImpl implements UserDAO, MangeAsset {
 		/*
 		获得用户的所有资产
 		 */
-		String query = "SELECT * FROM ASSET a join USER_ASSET u on a.id=u.assetid  where userid=" + user.getId();
+		String query = "SELECT a.id,a.name,u.total FROM ASSET a join USER_ASSET u on a.id=u.assetid join User b on b.id=u.userid where b.name='" + user.getName()+"'";
 		ResultSet rs = null;
 		List<Asset> assets = new ArrayList<Asset>();
 		Asset asset = new Asset();
@@ -326,7 +327,7 @@ public class managerDAOImpl implements UserDAO, MangeAsset {
 		删除用户的资产信息
 		 */
 		if(asset.getId()>0&&asset.getId()>0){
-			String query = "delete from USER_ASSET where userid="+user.getId()+"and assetid="+asset.getId();
+			String query = "delete from USER_ASSET where userid="+user.getId()+" and assetid="+asset.getId();
 			try{
 				connection = ConnectionFactory.getConnection();
 				statement = connection.createStatement();

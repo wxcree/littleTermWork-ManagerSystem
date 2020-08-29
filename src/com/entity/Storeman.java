@@ -17,19 +17,21 @@ public class Storeman extends User{
        Asset asset = storemanDAO.getAsset(assetsid);
         Asset tmpAsset = new Asset();
         tmpAsset.setId(assetsid);
-       if(asset!=null){
+       if(asset.id>0){
            tmpAsset.setName(asset.getName());
            tmpAsset.setTotal(num+asset.getTotal());
             storemanDAO.updateAsset(tmpAsset);
        }else{
            Scanner scanner=new Scanner(System.in);
-           System.out.println("请输入资产ID和名字：");
+           System.out.println("该资产不存在\n默认创建\n请输入资产ID、名字和数量：");
            int id=scanner.nextInt();
            String name=scanner.next();
            tmpAsset.setId(id);
-           tmpAsset.setTotal(num);
+           int total = scanner.nextInt();
+           tmpAsset.setTotal(total);
            tmpAsset.setName(name);
            storemanDAO.addAsset(tmpAsset);
+           System.out.println("更新成功！");
        }
     }
     public void addAssets() throws SQLException {
@@ -46,7 +48,7 @@ public class Storeman extends User{
         Asset asset = storemanDAO.getAsset(assestsid);
         Asset tmpAsset = new Asset();
         tmpAsset.setId(assestsid);
-        if(asset!=null){
+        if(asset.getId()>0){
             tmpAsset.setName(asset.getName());
             if(asset.getTotal()>=num)
              tmpAsset.setTotal(asset.getTotal()-num);

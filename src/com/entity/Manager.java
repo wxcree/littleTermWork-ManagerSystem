@@ -26,14 +26,20 @@ public class Manager extends User {
        User user = new OrdinaryUser();
        user.setName(name);
        List<Asset>assetList = userDAOManager.getUsersAssets(user);
-        int i = 0;
-        System.out.print("No\tid\tname\n");
-        while (i<assetList.size()){
-            Asset asset = assetList.get(i);
-            System.out.print(i+"\t");
-            System.out.print(asset.getId()+"\t");
-            System.out.print(asset.getName()+"\t");
-        }
+       if(assetList.isEmpty()){
+            System.out.println(name+"\n没有信息");
+       }else {
+           int i = 0;
+           System.out.print(name+":\nNo\tid\tname\ttotal\n");
+           while (i < assetList.size()) {
+               Asset asset = assetList.get(i);
+               System.out.print(i + "\t");
+               System.out.print(asset.getId() + "\t");
+               System.out.print(asset.getName() + "\t");
+               System.out.print(asset.getTotal() + "\n");
+               i++;
+           }
+       }
     }
     public void Searchu_a()throws SQLException{
         Scanner scanner=new Scanner(System.in);
@@ -50,6 +56,7 @@ public class Manager extends User {
         int i = 0;
         while (i<userList.size()){
             search(userList.get(i).getName());
+            i++;
         }
     }
 
@@ -100,10 +107,9 @@ public class Manager extends User {
                 Asset asset = LA.get(i);//借用关系表中的asset，里面的total记录的是申请的数量
                 if(asset.getId()==assetid){
                     isFound=true;
-                    storemanDAOImpl storemanDAO=new storemanDAOImpl();
-                    tmpAsset=storemanDAO.getAsset(assetid);//获得资产表中的对象
+                    tmpAsset=super.storeman.getAsset(assetid);//获得资产表中的对象
                     asset.setTotal(tmpAsset.getTotal()+asset.getTotal());
-                    storemanDAO.updateAsset(asset);
+                    super.storeman.updateAsset(asset);
                     userDAOManager.deleteUsersAsset(user,tmpAsset);
                     break;
                 }
@@ -128,11 +134,10 @@ public class Manager extends User {
 
     public void applyAsset(String name,String password,int assetid) throws SQLException {
         User user= userDAOManager.login(name,password);
-        storemanDAOImpl storemanDAO=new storemanDAOImpl();
-        Asset asset=storemanDAO.getAsset(assetid);
+        Asset asset=super.storeman.getAsset(assetid);
         if(user!=null&&asset!=null){
             System.out.println("资产信息：");
-            System.out.println("id:"+asset.getId()+"name:"+asset.getName()+"数量:"+asset.getTotal());
+            System.out.println("id:"+asset.getId()+"\tname:"+asset.getName()+"\t数量:"+asset.getTotal());
             Scanner scanner=new Scanner(System.in);
             System.out.println("请输入申请的数量:");
             int num=scanner.nextInt();
@@ -144,8 +149,12 @@ public class Manager extends User {
                 tmpasset.setId(assetid);
                 tmpasset.setName(asset.getName());
                 asset.setTotal(asset.getTotal()-num);
-                storemanDAO.updateAsset(asset);
-                userDAOManager.addUsersAsset(user,tmpasset);
+                super.storeman.updateAsset(asset);
+                //try {
+                    userDAOManager.addUsersAsset(user, tmpasset);
+//                } catch (Exception e){
+//                    userDAOManager.updateUsersAsset(user,asset);
+//                }
             }
         }
         else{

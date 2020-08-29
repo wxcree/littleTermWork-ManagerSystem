@@ -20,7 +20,7 @@ import java.util.List;
 public class userDAOImpl implements UserDAO {
     private Statement statement;
     private Connection connection;
-    List<User> users;
+    List<User> users;//缓存
     public userDAOImpl(){
         /*
         初始化类
@@ -33,6 +33,8 @@ public class userDAOImpl implements UserDAO {
         /*
         获得所有用户
          */
+        if(!users.isEmpty())
+            return users;
         String query = "SELECT * FROM User";
         ResultSet rs = null;
         Factory factory = new Factory();
@@ -105,6 +107,7 @@ public class userDAOImpl implements UserDAO {
             String query = "UPDATE User SET User.password='"+user.getPassword()+"',User.name='"+user.getName()+"' WHERE id=" + user.getId();
             try {
                 statement.executeUpdate(query);
+                users.clear();
                 return true;
             }catch (Exception e){
                 e.printStackTrace();
@@ -117,6 +120,7 @@ public class userDAOImpl implements UserDAO {
             String query = "UPDATE User SET password='"+user.getPassword()+"',User.name='"+user.getName()+"' WHERE username='" + user.getName()+"'";
             try {
                 statement.executeUpdate(query);
+                users.clear();
                 return true;
             } catch (Exception e){
                 e.printStackTrace();
@@ -142,6 +146,7 @@ public class userDAOImpl implements UserDAO {
             String query = "DELETE FROM User WHERE id=" + user.getId();
             try {
                 statement.executeUpdate(query);
+                users.clear();
                 return true;
             } catch (Exception e){
                 e.printStackTrace();
@@ -154,6 +159,7 @@ public class userDAOImpl implements UserDAO {
             String query = "DELETE FROM User WHERE username='" + user.getName()+"'";
             try {
                 statement.executeUpdate(query);
+                users.clear();
                 return true;
             } catch (Exception e){
                 e.printStackTrace();
@@ -218,7 +224,7 @@ public class userDAOImpl implements UserDAO {
             connection = ConnectionFactory.getConnection();
             statement = connection.createStatement();
             statement.executeUpdate(query);
-
+            users.clear();
         } catch(Exception e)
         {
             e.printStackTrace();

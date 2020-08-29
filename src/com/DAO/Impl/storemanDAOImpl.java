@@ -3,6 +3,7 @@ package com.DAO.Impl;
 StoremanDAO接口
 编写者：汪晓成  时间：2020.8.24
 功能：实现库管用户可能会用到的数据库增删改查
+
 */
 import com.DAO.AssetDAO;
 import com.db.ConnectionFactory;
@@ -19,13 +20,13 @@ import java.util.List;
 public class storemanDAOImpl implements AssetDAO {
     private Statement statement;
     private Connection connection;
-    List<Asset> assetList;
+    List<Asset> assetList;//缓存
 
     public storemanDAOImpl(){
         /*
         初始化类
          */
-        List<Asset> assetList=new ArrayList<Asset>();
+        assetList=new ArrayList<Asset>();
         connection=ConnectionFactory.getConnection();
     }
     @Override
@@ -33,6 +34,8 @@ public class storemanDAOImpl implements AssetDAO {
         /*
         获得所有资产
          */
+        if(!assetList.isEmpty())
+            return assetList;
         String query = "SELECT * FROM ASSET";
         ResultSet rs = null;
         Asset asset = new Asset();
@@ -96,6 +99,7 @@ public class storemanDAOImpl implements AssetDAO {
                 connection = ConnectionFactory.getConnection();
                 statement = connection.createStatement();
                 statement.executeUpdate(query);
+                assetList.clear();
                 return true;
             } catch (Exception e){
                 e.printStackTrace();
@@ -115,11 +119,12 @@ public class storemanDAOImpl implements AssetDAO {
         增加资产
          */
         if(asset.getId()>0){
-            String query = "UPADTE ASSET SET total="+asset.getTotal()+"where id="+asset.getId();
+            String query = "UPDATE ASSET SET total="+asset.getTotal()+" where id="+asset.getId();
             try{
                 connection = ConnectionFactory.getConnection();
                 statement = connection.createStatement();
                 statement.executeUpdate(query);
+                assetList.clear();
                 return true;
             } catch (Exception e){
                 e.printStackTrace();
@@ -144,6 +149,7 @@ public class storemanDAOImpl implements AssetDAO {
                 connection = ConnectionFactory.getConnection();
                 statement = connection.createStatement();
                 statement.executeUpdate(query);
+                assetList.clear();
                 return true;
             } catch (Exception e){
                 e.printStackTrace();

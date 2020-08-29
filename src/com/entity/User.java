@@ -60,6 +60,7 @@ public abstract class User {
                 System.out.print(asset.getId() + "\t");
                 System.out.print(asset.getName() + "\t");
                 System.out.print(asset.getTotal() + "\n");
+                i++;
             }
         }
     }
